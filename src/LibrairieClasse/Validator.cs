@@ -2,24 +2,14 @@
 
 namespace LibrairieClasse
 {
-    public class Validator(int boardSize)
+    public class Validator()
     {
         private Coordinate _enemyBoatCase1 = null!;
         private Coordinate _enemyBoatCase2 = null!;
         private Coordinate _myBoatCase1 = null!;
         private Coordinate _myBoatCase2 = null!;
-        private readonly char[][] _actualEnemyBoard = [
-            ['-','-','-','-'],
-            ['-','-','-','-'],
-            ['-','-','-','-'],
-            ['-','-','-','-']
-            ];
-        private readonly char[][] _myActualBoard = [
-            ['-','-','-','-'],
-            ['-','-','-','-'],
-            ['-','-','-','-'],
-            ['-','-','-','-']
-            ];
+        public static string[,] _actualEnemyBoard;
+        public static string[,] _myActualBoard;
 
         public bool InitEnemyBoat(int[] boatPosition) {
 
@@ -55,8 +45,8 @@ namespace LibrairieClasse
 
         private bool IsPlayInGrid(Coordinate coord)
         {
-            if (coord.GetXInt() < 0 || coord.GetXInt() > boardSize - 1 ||
-                coord.Y < 0 || coord.Y > boardSize - 1)
+            if (coord.GetXInt() < 0 || coord.GetXInt() > Interface.Longueur - 1 ||
+                coord.Y < 0 || coord.Y > Interface.Hauteur - 1)
             {
                 return false;
             }
@@ -64,11 +54,11 @@ namespace LibrairieClasse
             return true;
         }
 
-        private bool IsPlayDoneBefore(Coordinate coord, char[][] playBoard)
+        private bool IsPlayDoneBefore(Coordinate coord, string[,] playBoard)
         {
-            switch (playBoard[coord.Y][coord.GetXInt()]) 
+            switch (playBoard[coord.GetXInt(), coord.Y]) 
             {
-                case '-': return false;
+                case "-": return false;
                 default: return true;
             }
         }
@@ -89,7 +79,7 @@ namespace LibrairieClasse
                 throw new InvalidPlayException("Position du bateau pas encore initialisé");
             }
 
-            var playCoord = new Coordinate(missilePosition[0],missilePosition[1]);
+            var playCoord = new Coordinate(missilePosition[1],missilePosition[0]);
 
             if (!IsPlayValid(playCoord))
             {
@@ -108,11 +98,11 @@ namespace LibrairieClasse
                     if (playCoord.Equals(_enemyBoatCase1)) _enemyBoatCase1.Touched();
                     else _enemyBoatCase2.Touched();
 
-                    UpdateBoard(playCoord, 'T', player);
+                    UpdateBoard(playCoord, "T", player);
                     return true;
                 }
 
-                UpdateBoard(playCoord, 'M', player);
+                UpdateBoard(playCoord, "M", player);
                 return false;
             }
             else
@@ -122,11 +112,11 @@ namespace LibrairieClasse
                     if (playCoord.Equals(_myBoatCase1)) _myBoatCase1.Touched();
                     else _myBoatCase2.Touched();
 
-                    UpdateBoard(playCoord, 'T', player);
+                    UpdateBoard(playCoord, "T", player);
                     return true;
                 }
 
-                UpdateBoard(playCoord, 'M', player);
+                UpdateBoard(playCoord, "M", player);
                 return false;
             }
             
@@ -142,15 +132,15 @@ namespace LibrairieClasse
             return _enemyBoatCase1.IsTouched() && _enemyBoatCase2.IsTouched();
         }
 
-        private void UpdateBoard(Coordinate coord, char result, char player)
+        private void UpdateBoard(Coordinate coord, string result, char player)
         {
             if(player == 'E')
             {
-                _myActualBoard[coord.Y][coord.GetXInt()] = result;
+                _myActualBoard[coord.GetXInt(), coord.Y] = result;
                 
             }else
             {
-                _actualEnemyBoard[coord.Y][coord.GetXInt()] = result;
+                _actualEnemyBoard[coord.GetXInt(), coord.Y] = result;
             }
             
         }

@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Xml;
 
@@ -7,15 +8,15 @@ namespace LibrairieClasse
     public class Interface
     {
         public static string[,] FullMap;
-
+        public static int Longueur, Hauteur;
         public static void DrawGame(string[,] hitMap, string[,] playerMap)
         {
             // Montre la map hit et la map miss
             Console.WriteLine("Carte des hit et des miss");
-            DrawMap(hitMap, 4, 4, 2, 2);
+            DrawMap(hitMap, 2, 2);
             Console.WriteLine("\n");
             Console.WriteLine("Votre carte:");
-            DrawMap(playerMap, 4, 4, 2, 10);
+            DrawMap(playerMap, 2, Hauteur + 4);
         }
 
         /// <summary>
@@ -26,13 +27,13 @@ namespace LibrairieClasse
         /// <param name="posX"></param>
         /// <param name="posY"></param>
         /// <returns></returns>
-        public static string[,] CreateInitialMap(int longueur, int hauteur, int posX, int posY)
+        public static string[,] CreateInitialMap(int posX, int posY)
         {
-            string[,] fullBaseMap = new string[longueur, hauteur];
+            string[,] fullBaseMap = new string[Longueur, Hauteur];
             int tempPosY = posY + 1;
             // Definir toutes les lignes
             Console.SetCursorPosition(posX, posY - 1);
-            for (int i = 1; i <= longueur; i++)
+            for (int i = 1; i <= Longueur; i++)
             {
                 if (i < 10)
                 {
@@ -41,16 +42,16 @@ namespace LibrairieClasse
                 else Console.Write(i);
             }
             Console.SetCursorPosition(posX, posY);
-            for (int y = 0; y < hauteur; y++)
+            for (int y = 0; y < Hauteur; y++)
             {
-                for (int x = 0; x < longueur; x++)
+                for (int x = 0; x < Longueur; x++)
                 {
                     fullBaseMap[x, y] = "-";
                 }
             }
-            for (int y = 0; y < hauteur; y++)
+            for (int y = 0; y < Hauteur; y++)
             {
-                for (int x = 0; x < longueur; x++)
+                for (int x = 0; x < Longueur; x++)
                 {
                     DrawBlockWithColor(fullBaseMap[x, y]);
                 }
@@ -63,11 +64,11 @@ namespace LibrairieClasse
             return fullBaseMap;
         }
 
-        public static void DrawMap(string[,] mapToDraw, int longueur, int hauteur, int posX, int posY)
+        public static void DrawMap(string[,] mapToDraw, int posX, int posY)
         {
             int tempPosY = posY + 1;
             Console.SetCursorPosition(posX, posY - 1);
-            for (int i = 1; i <= longueur; i++)
+            for (int i = 1; i <= Longueur; i++)
             {
                 if (i < 10)
                 {
@@ -76,10 +77,10 @@ namespace LibrairieClasse
                 else Console.Write(i);
             }
             Console.SetCursorPosition(posX, posY);
-            for (int y = 0; y < hauteur; y++)
+            for (int y = 0; y < Hauteur; y++)
             {
 
-                for (int x = 0; x < longueur; x++)
+                for (int x = 0; x < Longueur; x++)
                 { 
                     DrawBlockWithColor(mapToDraw[x, y]);
                 }
@@ -115,14 +116,14 @@ namespace LibrairieClasse
         /// <param name="hauteur"></param>
         /// <param name="posX"></param>
         /// <param name="posY"></param>
-        public static string[,] SelectGrid(int longueur, int hauteur, int posX, int posY)
+        public static string[,] SelectGrid(int posX, int posY)
         {
             //const string letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
             //const string digits = "0123456789";
             bool isSelected = false;
+            // Choisir la position du bateau et sa rotation
             do
             {
-                // Choisir la position du bateau et sa rotation
 
                 // Demande la position initiale
                 bool canContinue = false;
@@ -133,15 +134,15 @@ namespace LibrairieClasse
                 {
                     canContinue = true;
                     Console.Clear();
-                    CreateInitialMap(longueur, hauteur, posX, posY);
+                    CreateInitialMap(posX, posY);
                     Console.Write("Position (example de format: A1): ");
                     position = Console.ReadLine() ?? "";
 
-                    canContinue = PositionValide(out finalPos, position, hauteur, longueur);
+                    canContinue = PositionValide(out finalPos, position);
                 }
                 // Dessiner la map
                 FullMap[finalPos[1], finalPos[0]] = "B";
-                DrawMap(FullMap, longueur, hauteur, posX, posY);
+                DrawMap(FullMap, posX, posY);
 
                 // Choisir la rotation
                 bool rotationValide = false;
@@ -149,9 +150,9 @@ namespace LibrairieClasse
                 do
                 {
                     Console.Clear();
-                    DrawMap(FullMap, longueur, hauteur, posX, posY);
+                    DrawMap(FullMap, posX, posY);
                     // Demander la rotation désirer
-                    Console.SetCursorPosition(posX, posY + hauteur + 2);
+                    Console.SetCursorPosition(posX, posY + Hauteur + 2);
                     Console.WriteLine("Choisir l'orientation:\n1 = Nord\n2 = Sud\n3 = Ouest\n4 = Est");
                     Console.Write("Choix : ");
                     if (showErrorMsg)
@@ -175,18 +176,16 @@ namespace LibrairieClasse
                                 break;
                             }
                             else FullMap[finalPos[1], finalPos[0] - 1] = "B";
-                            DrawMap(FullMap, longueur, hauteur, posX, posY);
                             rotationValide = true;
                             isSelected = true;
                             break;
                         case "2":
-                            if (finalPos[0] + 1 == hauteur)
+                            if (finalPos[0] + 1 == Hauteur)
                             {
                                 showErrorMsg = true;
                                 break;
                             }
                             else FullMap[finalPos[1], finalPos[0] + 1] = "B";
-                            DrawMap(FullMap, longueur, hauteur, posX, posY);
                             rotationValide = true;
                             isSelected = true;
                             break;
@@ -197,18 +196,16 @@ namespace LibrairieClasse
                                 break;
                             }
                             else FullMap[finalPos[1] - 1, finalPos[0]] = "B";
-                            DrawMap(FullMap, longueur, hauteur, posX, posY);
                             rotationValide = true;
                             isSelected = true;
                             break;
                         case "4":
-                            if (finalPos[1] + 1 == longueur)
+                            if (finalPos[1] + 1 == Longueur)
                             {
                                 showErrorMsg = true;
                                 break;
                             }
                             else FullMap[finalPos[1] + 1, finalPos[0]] = "B";
-                            DrawMap(FullMap, longueur, hauteur, posX, posY);
                             rotationValide = true;
                             isSelected = true;
                             break;
@@ -216,6 +213,7 @@ namespace LibrairieClasse
                             showErrorMsg = true;
                             break;
                     }
+                    DrawMap(FullMap, posX, posY);
                 } while (!rotationValide);
             } while (!isSelected);
             return FullMap;
@@ -226,31 +224,40 @@ namespace LibrairieClasse
         /// Verifie la validité d'un entrée d'une position
         /// </summary>
         /// <param name="positionEntree"></param>
-        /// <param name="hauteur"></param>
-        /// <param name="longueur"></param>
         /// <param name="finalPos"></param>
         /// <returns></returns>
-        public static bool PositionValide(out int[] finalPos, string positionEntree, int hauteur, int longueur)
+        public static bool PositionValide(out int[] finalPos, string positionEntree)
         {
             const string letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
             const string digits = "0123456789";
             finalPos = new int[2];
             // Verification si la positionEntree est valide
-            if (positionEntree.Length != 2) return false;
+            if (positionEntree == "") return false;
+            if (positionEntree.Length > 3) return false;
             if (!letters.Contains(positionEntree.ToArray()[0].ToString().ToUpper())) return false;
-            if (letters.IndexOf(positionEntree.ToArray()[0].ToString().ToUpper()) > hauteur) return false;
+            if (letters.IndexOf(positionEntree.ToArray()[0].ToString().ToUpper()) > Hauteur) return false;
             if (!digits.Contains(positionEntree.ToArray()[1])) return false;
-            if ((int)Char.GetNumericValue(positionEntree.ToArray()[1]) - 1 >= hauteur || (int)Char.GetNumericValue(positionEntree.ToArray()[1]) - 1 < 0) return false;
+            if (positionEntree.Length == 3 && !digits.Contains(positionEntree.ToArray()[2])) return false;
+            if ((int)Char.GetNumericValue(positionEntree.ToArray()[1]) - 1 >= Hauteur || (int)Char.GetNumericValue(positionEntree.ToArray()[1]) - 1 < 0) return false;
 
             // Transformer la position A1 en { 0, 0 }
             finalPos[0] = LetterToNumber(positionEntree.ToArray()[0]); // Position Y
-            finalPos[1] = (int)Char.GetNumericValue(positionEntree.ToArray()[1]) - 1; // Position X
+            if (positionEntree.Length == 3)
+            {
+                string test;
+                test = positionEntree.ToArray()[1].ToString() + positionEntree.ToArray()[2].ToString(); // Position X
+                finalPos[1] = int.Parse(test) - 1;
+            }
+            else
+            {
+                finalPos[1] = (int)Char.GetNumericValue(positionEntree.ToArray()[1]) - 1; // Position X
+            }
 
             // Verfie si la position est dans le grid de jeu
             if (finalPos[0] < 0) return false;
             if (finalPos[1] < 0) return false;
-            if (finalPos[0] + 1 > hauteur) return false;
-            if (finalPos[1] + 1 > longueur) return false;
+            if (finalPos[0] + 1 > Hauteur) return false;
+            if (finalPos[1] + 1 > Longueur) return false;
 
             return true;
         }
@@ -275,6 +282,17 @@ namespace LibrairieClasse
             const string letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
             return letters.IndexOf((string)letter.ToString().ToUpper());
+        }
+        public static int AskForNumber()
+        {
+            string input;
+            do
+            {
+                input = Console.ReadLine();
+
+            } while (string.IsNullOrEmpty(input) || !input.All(char.IsNumber));
+
+            return int.Parse(input);
         }
     }
 }

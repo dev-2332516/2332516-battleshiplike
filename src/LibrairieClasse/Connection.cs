@@ -13,7 +13,7 @@ namespace LibrairieClasse
 {
     public static class Connection
     {   
-        private static readonly Validator validator = new(4);
+        private static readonly Validator validator = new();
 
         public static void Sender(Socket socket,int[] boatPosition ) 
         {

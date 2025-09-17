@@ -1,12 +1,14 @@
-﻿using System;
+﻿using LibrairieClasse;
+using Microsoft.VisualBasic.FileIO;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using System.Net.Sockets;
 using System.Net;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
-using LibrairieClasse;
-using System.Diagnostics.CodeAnalysis;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Client
 {
@@ -19,14 +21,27 @@ namespace Client
             string[,] hitMap;
             int[] positionEnnemie;
 
+            // Variables temporaires pour la hauteur et la longueur
+            int longueur, hauteur;
 
             byte[] bytes = new byte[256];
             byte[] buffer = new byte[1024];
 
             try
             {
+                // Demande la taille du grid
+                AskForSize(out longueur, out hauteur);
+                Interface.Longueur = longueur;
+                Interface.Hauteur = hauteur;
+
+                //Interface.Longueur = 5;
+                //Interface.Hauteur = 5;
+
+                // Demande l'ip du serveur
                 Console.Write("Entrez l'adresse IP du serveur:");
                 string IP = Console.ReadLine() ?? "";
+
+                //string IP = "10.99.60.148";
                 // Cree les sockets
                 IPAddress ipAdress = IPAddress.Parse(IP);
 
@@ -53,19 +68,25 @@ namespace Client
 
                     sender.Connect(remoteEP);
                     Console.WriteLine("Connection Établie. Début de la partie.");
+
+                    // Envoie la taille du grid au serveur et setup quelques variables
+                    int[] taille = new int[2];
+                    taille[0] = Interface.Longueur;
+                    taille[1] = Interface.Hauteur;
+                    Connection.Sender(sender, taille);
+                    hitMap = new string[Interface.Longueur, Interface.Hauteur];
                     Console.Clear();
 
                     // Loop du jeu
                     while (!endCondition)
                     {
-                        //Choose first boat position
-                        //Send it to Server
+                        //Choose boat position
                         Console.Clear();
-                        playerMap = Interface.SelectGrid(4, 4, 2, 1);
+                        playerMap = Interface.SelectGrid(2, 1);
                         List<int> BoatPostion = new List<int>();
-                        for (int y = 0; y < 4; y++)
+                        for (int y = 0; y < Interface.Hauteur; y++)
                         {
-                            for (int x = 0; x < 4; x++)
+                            for (int x = 0; x < Interface.Longueur; x++)
                             {
                                 if (playerMap[x, y] == "B")
                                 {
@@ -75,10 +96,23 @@ namespace Client
                             }
                         }
                         // Initialise la hit map de base
-                        hitMap = new string[,] { { "-", "-", "-", "-" }, { "-", "-", "-", "-" }, { "-", "-", "-", "-" }, { "-", "-", "-", "-" } };
+                        for (int y = 0; y < Interface.Hauteur; y++)
+                        {
+                            for (int x = 0; x < Interface.Longueur; x++)
+                            {
+                                hitMap[x, y] = "-";
+                            }
+                        }
+
+                        // Set les board dans le validator
+                        Validator._actualEnemyBoard = hitMap;
+                        Validator._myActualBoard = playerMap;
+
+                        // Envoi la position du bateau joueur au serveur
                         Connection.Sender(sender, BoatPostion.ToArray());
                         Connection.InitBoat(BoatPostion.ToArray());
-                        // Attend pour la reponse du serveur
+
+                        // Attend la position du bateau du serveur
                         Console.Clear();
                         Console.WriteLine("Waiting server to place first boat...");
                         positionEnnemie = Connection.Receiver(sender);
@@ -102,7 +136,7 @@ namespace Client
                                 //Client start playing
                                 Console.Write("Entrez la position de votre action: ");
                                 string playedMove = Console.ReadLine() ?? "";
-                                valide = Interface.PositionValide(out missilePosition, playedMove, 4, 4);
+                                valide = Interface.PositionValide(out missilePosition, playedMove);
                             }
 
                             Connection.Sender(sender, missilePosition);
@@ -110,11 +144,10 @@ namespace Client
                             if (touched)
                             {
                                 // Sauvegarde la position Touché et redessine la map
-                                hitMap[missilePosition[0], missilePosition[1]] = "H";
+                                hitMap[missilePosition[1], missilePosition[0]] = "H";
                                 Console.Clear();
                                 Interface.DrawGame(hitMap, playerMap);
-                                //change color for green or sum
-                                // TODO : send win and wait for server check
+
                                 maybeWin = Connection.WinCheck();
                                 Connection.SendGameStatus(sender, maybeWin);
 
@@ -130,7 +163,7 @@ namespace Client
                             }
                             else
                             {
-                                hitMap[missilePosition[0], missilePosition[1]] = "M";
+                                hitMap[missilePosition[1], missilePosition[0]] = "M";
                                 Console.Clear();
                                 Interface.DrawGame(hitMap, playerMap);
                             }
@@ -142,7 +175,7 @@ namespace Client
                             if (touched)
                             {
                                 //change color for red
-                                playerMap[missilePosition[0], missilePosition[1]] = "S";
+                                playerMap[missilePosition[1], missilePosition[0]] = "S";
                                 Console.Clear();
                                 Interface.DrawGame(hitMap, playerMap);
                                 maybeWin = Connection.ReceiveGameStatus(sender);
@@ -160,7 +193,7 @@ namespace Client
                             }
                             else
                             {
-                                playerMap[missilePosition[0], missilePosition[1]] = "M";
+                                playerMap[missilePosition[1], missilePosition[0]] = "M";
                                 Console.Clear();
                                 Interface.DrawGame(hitMap, playerMap);
                             }
@@ -195,6 +228,35 @@ namespace Client
             catch (Exception e)
             {
                 Console.WriteLine(e.ToString());
+            }
+        }
+
+        public static void AskForSize(out int longueur, out int hauteur)
+        {
+            // Initialise les variables
+            longueur = 0;
+            hauteur = 0;
+            bool valid = false;
+            
+            while (!valid)
+            {
+                // Affiche les instructions et demande la taille
+                Console.WriteLine("La taille de la maquette doit être entre 4x4 et 12x12\n");
+                Console.Write("Longueur de la maquette: ");
+                longueur = Interface.AskForNumber();
+                Console.Write("\nHauteur de la maquette: ");
+                hauteur = Interface.AskForNumber();
+
+                // Verifier si la taille entrée est valide 
+                if (longueur >= 4 && longueur <= 12 && hauteur >= 4 && hauteur <= 12) valid = true;
+                else
+                {
+                    // Affiche le message d'erreur
+                    Console.Clear();
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("Taille entrée invalide");
+                    Console.ForegroundColor = ConsoleColor.White;
+                }
             }
         }
     }

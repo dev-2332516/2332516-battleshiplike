@@ -22,6 +22,9 @@ namespace Serveur
             string[,] hitMap;
             int[] positionEnnemie;
 
+            // Variables temporaires pour le grid
+            int longueur, hauteur;
+
             IPAddress ipAddress = IPAddress.Any;
             IPEndPoint localEndPoint = new IPEndPoint(ipAddress, 22222);
             Socket listener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
@@ -38,8 +41,15 @@ namespace Serveur
                 Console.WriteLine("...ATTENTE...");
                 Socket handler = listener.Accept();
                 Console.WriteLine("Connection Établie. Début de la partie.");
-                Console.Clear();
 
+                // Recois la taille set par le client et initialise quelques variables
+                int[] taille = Connection.Receiver(handler);
+                Interface.Longueur = taille[0];
+                Interface.Hauteur = taille[1];
+
+                hitMap = new string[Interface.Longueur, Interface.Hauteur];
+
+                Console.Clear();
                 while (!endCondition)
                 {
                     // Attend pour la reponse du Client
@@ -53,11 +63,11 @@ namespace Serveur
                     //Choose first boat position
                     //Send it to Server
                     Console.Clear();
-                    playerMap = Interface.SelectGrid(4, 4, 2, 1);
+                    playerMap = Interface.SelectGrid(2, 1);
                     List<int> BoatPostion = new List<int>();
-                    for (int y = 0; y < 4; y++)
+                    for (int y = 0; y < Interface.Hauteur; y++)
                     {
-                        for (int x = 0; x < 4; x++)
+                        for (int x = 0; x < Interface.Longueur; x++)
                         {
                             if (playerMap[x, y] == "B")
                             {
@@ -67,33 +77,39 @@ namespace Serveur
                         }
                     }
                     // Initialise la hit map de base
-                    hitMap = new string[,] { { "-", "-", "-", "-" }, { "-", "-", "-", "-" }, { "-", "-", "-", "-" }, { "-", "-", "-", "-" } };
-                    Connection.Sender(handler, BoatPostion.ToArray());
+                    for (int y = 0; y < Interface.Hauteur; y++)
+                    {
+                        for (int x = 0; x < Interface.Longueur; x++)
+                        {
+                            hitMap[x, y] = "-";
+                        }
+                    }
+
+                    // Set les board dans le validator
+                    Validator._actualEnemyBoard = hitMap;
+                    Validator._myActualBoard = playerMap; Connection.Sender(handler, BoatPostion.ToArray());
                     Connection.InitBoat(BoatPostion.ToArray());
 
+                    // Envoi message de validation pour jouer
                     Console.WriteLine("Waiting for server to start the game...");
                     Connection.SendMessage(handler, "OK");
 
                     Console.Clear();
-
-
-
                     while (!winCondition)
                     {
+                        // Setup les variables
                         bool maybeWin = false;
                         bool touched;
                         int[] missilePosition = new int[2];
 
-                        // Montre la map hit et la map miss
-                        Interface.DrawGame(hitMap, playerMap);
+                        Interface.DrawGame(hitMap, playerMap); // Montre la map hit et la map miss
                         Console.WriteLine("C'est au tour du client...");
                         //Server received
                         missilePosition = Connection.Receiver(handler);
                         touched = Connection.MissOrTouched(missilePosition, 'E');
                         if (touched)
                         {
-                            //change color for red
-                            playerMap[missilePosition[0], missilePosition[1]] = "S";
+                            playerMap[missilePosition[1], missilePosition[0]] = "S"; // Change la case pour une case 'Sink'
                             Console.Clear();
                             Interface.DrawGame(hitMap, playerMap);
                             maybeWin = Connection.ReceiveGameStatus(handler);
@@ -112,7 +128,7 @@ namespace Serveur
                         }
                         else
                         {
-                            playerMap[missilePosition[0], missilePosition[1]] = "M";
+                            playerMap[missilePosition[1], missilePosition[0]] = "M";
                             Console.Clear();
                             Interface.DrawGame(hitMap, playerMap);
                         }
@@ -128,14 +144,14 @@ namespace Serveur
                             //Client start playing
                             Console.Write("Entrez la position de votre action: ");
                             string playedMove = Console.ReadLine() ?? "";
-                            valide = Interface.PositionValide(out missilePosition, playedMove, 4, 4);
+                            valide = Interface.PositionValide(out missilePosition, playedMove);
                         }
 
                         Connection.Sender(handler, missilePosition);
                         touched = Connection.MissOrTouched(missilePosition, 'M');
                         if (touched)
                         {
-                            hitMap[missilePosition[0], missilePosition[1]] = "H";
+                            hitMap[missilePosition[1], missilePosition[0]] = "H";
                             Console.Clear();
                             Interface.DrawGame(hitMap, playerMap);
                             //change color for green or sum
@@ -155,7 +171,7 @@ namespace Serveur
                         }
                         else
                         {
-                            hitMap[missilePosition[0], missilePosition[1]] = "M";
+                            hitMap[missilePosition[1], missilePosition[0]] = "M";
                             Console.Clear();
                             Interface.DrawGame(hitMap, playerMap);
                         }
