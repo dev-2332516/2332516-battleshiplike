@@ -35,7 +35,7 @@ namespace LibrairieClasse
 
         private bool IsPlayValid(Coordinate coordinate) 
         {
-            if (!IsPlayInGrid(coordinate) || IsPlayDoneBefore(coordinate, _actualEnemyBoard))
+            if (!IsPlayInGrid(coordinate))
             {
                 return false;
             }
@@ -52,15 +52,6 @@ namespace LibrairieClasse
             }
 
             return true;
-        }
-
-        private bool IsPlayDoneBefore(Coordinate coord, string[,] playBoard)
-        {
-            switch (playBoard[coord.GetXInt(), coord.Y]) 
-            {
-                case "-": return false;
-                default: return true;
-            }
         }
 
         /**

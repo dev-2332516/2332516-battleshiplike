@@ -234,6 +234,7 @@ namespace LibrairieClasse
             // Verification si la positionEntree est valide
             if (positionEntree == "") return false;
             if (positionEntree.Length > 3) return false;
+            if (positionEntree.Length < 2) return false;
             if (!letters.Contains(positionEntree.ToArray()[0].ToString().ToUpper())) return false;
             if (letters.IndexOf(positionEntree.ToArray()[0].ToString().ToUpper()) > Hauteur) return false;
             if (!digits.Contains(positionEntree.ToArray()[1])) return false;
