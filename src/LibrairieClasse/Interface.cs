@@ -1,9 +1,4 @@
-﻿using System.Numerics;
-using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
-using System.Xml;
-
-namespace LibrairieClasse
+﻿namespace LibrairieClasse
 {
     public class Interface
     {

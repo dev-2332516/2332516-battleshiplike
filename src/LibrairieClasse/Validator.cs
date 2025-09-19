@@ -1,6 +1,4 @@
-﻿using System.Text.RegularExpressions;
-
-namespace LibrairieClasse
+﻿namespace LibrairieClasse
 {
     public class Validator()
     {
