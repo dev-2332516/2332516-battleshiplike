@@ -31,14 +31,28 @@
             _myBoatCase2 = coord2;
         }
 
-        private bool IsPlayValid(Coordinate coordinate) 
+        private bool IsPlayValid(Coordinate coordinate, char player) 
         {
-            if (!IsPlayInGrid(coordinate))
+            if (!IsPlayInGrid(coordinate) || IsPlayDoneBefore(coordinate, player))
             {
                 return false;
             }
             
             return true;
+        }
+
+        private bool IsPlayDoneBefore(Coordinate coord, char player)
+        {
+            var playBoard = _myActualBoard;
+            if (player == 'M')
+            {
+                playBoard = _actualEnemyBoard;
+            }
+            switch (playBoard[coord.Y, coord.GetXInt()])
+            {
+                case "-": return false;
+                default: throw new InvalidPlayException("COUP deja fait " + player);
+            }
         }
 
         private bool IsPlayInGrid(Coordinate coord)
@@ -70,7 +84,7 @@
 
             var playCoord = new Coordinate(missilePosition[1],missilePosition[0]);
 
-            if (!IsPlayValid(playCoord))
+            if (!IsPlayValid(playCoord, player))
             {
                 throw new InvalidPlayException("Coup invalide");
             }

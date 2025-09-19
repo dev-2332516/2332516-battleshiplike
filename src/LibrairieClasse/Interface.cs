@@ -74,7 +74,6 @@
             Console.SetCursorPosition(posX, posY);
             for (int y = 0; y < Hauteur; y++)
             {
-
                 for (int x = 0; x < Longueur; x++)
                 { 
                     DrawBlockWithColor(mapToDraw[x, y]);
@@ -93,8 +92,8 @@
         public static void DrawBlockWithColor(string c)
         {
             //gives out a console color for wathever char it gets, might make this a switch or an enum in the future idk
-            if (c == "-") Console.BackgroundColor = ConsoleColor.White;
-            if (c == "B") Console.BackgroundColor = ConsoleColor.DarkYellow;
+            if (c == "-") Console.BackgroundColor = ConsoleColor.DarkBlue;
+            if (c == "B") Console.BackgroundColor = ConsoleColor.DarkGray;
             if (c == "M") Console.BackgroundColor = ConsoleColor.Gray;
             if (c == "H") Console.BackgroundColor = ConsoleColor.Green;
             if (c == "S") Console.BackgroundColor = ConsoleColor.Red;

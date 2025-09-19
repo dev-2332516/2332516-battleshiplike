@@ -1,11 +1,17 @@
-﻿namespace Client
+﻿using LibrairieClasse;
+
+namespace Client
 {
     public class Program
     {
         static void Main(string[] args)
         {
+            // Reset la console au vide 
+            Console.ForegroundColor = ConsoleColor.Gray;
+            Console.BackgroundColor = ConsoleColor.Black;
             Console.Clear();
-            ClientConnection.StartClient();
+            //Themer.InitializeTheme();
+            //ClientConnection.StartClient();
             //int longueur, hauteur;
             //bool valid = false;
             //while (!valid)
@@ -30,12 +36,14 @@
             //    Interface.Longueur = longueur;
             //    Interface.Hauteur = hauteur;
             //}
-            //while (true)
-            //{
-            //    Console.Clear();
-            //    Interface.SelectGrid(2, 2);
-            //    Console.ReadKey();
-            //}
+            while (true)
+            {
+                Interface.Longueur = 6;
+                Interface.Hauteur = 5;
+                Console.Clear();
+                Interface.SelectGrid(2, 2);
+                Console.ReadLine();
+            }
         }
     }
 

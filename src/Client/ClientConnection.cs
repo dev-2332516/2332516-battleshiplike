@@ -26,9 +26,6 @@ namespace Client
                 Interface.Longueur = longueur;
                 Interface.Hauteur = hauteur;
 
-                //Interface.Longueur = 5;
-                //Interface.Hauteur = 5;
-
                 // Demande l'ip du serveur
                 Console.Write("Entrez l'adresse IP du serveur:");
                 string IP = Console.ReadLine() ?? "";
