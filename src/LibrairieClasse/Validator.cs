@@ -43,10 +43,10 @@
 
         private bool IsPlayDoneBefore(Coordinate coord, char player)
         {
-            var playBoard = _myActualBoard;
+            var playBoard = _actualEnemyBoard;
             if (player == 'M')
             {
-                playBoard = _actualEnemyBoard;
+                playBoard = _myActualBoard;
             }
             switch (playBoard[coord.Y, coord.GetXInt()])
             {

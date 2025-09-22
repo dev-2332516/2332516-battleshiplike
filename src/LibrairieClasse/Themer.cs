@@ -5,6 +5,7 @@ using System.Formats.Asn1;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace LibrairieClasse
@@ -25,13 +26,11 @@ namespace LibrairieClasse
         public static bool InitializeTheme()
         {
             // Check if file exists and deserializes it
-            if (File.Exists("theme.csv"))
+            if (File.Exists("theme.json"))
             {
-                using (var reader = new StreamReader("theme.csv"))
-                using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
-                {
-                    Theme = csv.GetRecords<int>().ToArray();
-                }
+                string fileName = "theme.json";
+                string jsonString = File.ReadAllText(fileName);
+                Theme = JsonSerializer.Deserialize<int[]>(jsonString);
             }
             else AskForTheme();
             return true;
@@ -97,11 +96,9 @@ namespace LibrairieClasse
             ColorList.Remove(ColorList[choice - 1]);
             choice = 0;
 
-            using (var writer = new StreamWriter("theme.csv"))
-            using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
-            {
-                csv.WriteRecords(Theme);
-            }
+            string fileName = "theme.json";
+            string jsonString = JsonSerializer.Serialize(Theme);
+            File.WriteAllText(fileName, jsonString);
         }
 
         public static ConsoleColor GetColor(int i)

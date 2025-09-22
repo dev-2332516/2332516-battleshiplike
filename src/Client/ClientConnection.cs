@@ -114,77 +114,86 @@ namespace Client
                         // Logique primaire du jeu
                         while (!winCondition)
                         {
+                            bool touched = true;
                             bool maybeWin = false;
-                            bool valide = false;
                             int[] missilePosition = new int[2];
-                            while (!valide)
+                            while (touched)
                             {
-                                Console.Clear();
-                                Interface.DrawGame(hitMap,playerMap);
-
-                                //Client start playing
-                                Console.Write("Entrez la position de votre action: ");
-                                string playedMove = Console.ReadLine() ?? "";
-                                valide = Interface.PositionValide(out missilePosition, playedMove);
-                            }
-
-                            Connection.Sender(sender, missilePosition);
-                            bool touched = Connection.MissOrTouched(missilePosition, 'M'); // player M => me
-                            if (touched)
-                            {
-                                // Sauvegarde la position Touché et redessine la map
-                                hitMap[missilePosition[1], missilePosition[0]] = "H";
-                                Console.Clear();
-                                Interface.DrawGame(hitMap, playerMap);
-
-                                maybeWin = Connection.WinCheck();
-                                Connection.SendGameStatus(sender, maybeWin);
-
-                                if (maybeWin)
+                                bool valide = false;
+                                while (!valide)
                                 {
-                                    winCondition = true;
-                                    break;
+                                    Console.Clear();
+                                    Interface.DrawGame(hitMap, playerMap);
+
+                                    //Client start playing
+                                    Console.Write("Entrez la position de votre action: ");
+                                    string playedMove = Console.ReadLine() ?? "";
+                                    valide = Interface.PositionValide(out missilePosition, playedMove);
                                 }
-                                else
-                                {
-                                    maybeWin = false;
-                                }
-                            }
-                            else
-                            {
-                                hitMap[missilePosition[1], missilePosition[0]] = "M";
-                                Console.Clear();
-                                Interface.DrawGame(hitMap, playerMap);
-                            }
 
-                            //Server playing
-
-                            missilePosition = Connection.Receiver(sender);
-                            touched = Connection.MissOrTouched(missilePosition, 'E'); // player E => enemy
-                            if (touched)
-                            {
-                                //change color for red
-                                playerMap[missilePosition[1], missilePosition[0]] = "S";
-                                Console.Clear();
-                                Interface.DrawGame(hitMap, playerMap);
-                                maybeWin = Connection.ReceiveGameStatus(sender);
-                                if (maybeWin)
+                                Connection.Sender(sender, missilePosition);
+                                touched = Connection.MissOrTouched(missilePosition, 'M'); // player M => me
+                                if (touched)
                                 {
-                                    if (Connection.LoseCheck())
+                                    // Sauvegarde la position Touché et redessine la map
+                                    hitMap[missilePosition[1], missilePosition[0]] = "H";
+                                    Console.Clear();
+                                    Interface.DrawGame(hitMap, playerMap);
+
+                                    maybeWin = Connection.WinCheck();
+                                    Connection.SendGameStatus(sender, maybeWin);
+
+                                    if (maybeWin)
                                     {
                                         winCondition = true;
+                                        touched = false;
+                                        break;
                                     }
                                     else
                                     {
                                         maybeWin = false;
                                     }
                                 }
+                                else
+                                {
+                                    hitMap[missilePosition[1], missilePosition[0]] = "M";
+                                    Console.Clear();
+                                    Interface.DrawGame(hitMap, playerMap);
+                                }
                             }
-                            else
+                            if (!winCondition) touched = true;
+                            //Server playing
+                            while (touched)
                             {
-                                playerMap[missilePosition[1], missilePosition[0]] = "M";
-                                Console.Clear();
-                                Interface.DrawGame(hitMap, playerMap);
+                                missilePosition = Connection.Receiver(sender);
+                                touched = Connection.MissOrTouched(missilePosition, 'E'); // player E => enemy
+                                if (touched)
+                                {
+                                    //change color for red
+                                    playerMap[missilePosition[1], missilePosition[0]] = "S";
+                                    Console.Clear();
+                                    Interface.DrawGame(hitMap, playerMap);
+                                    maybeWin = Connection.ReceiveGameStatus(sender);
+                                    if (maybeWin)
+                                    {
+                                        if (Connection.LoseCheck())
+                                        {
+                                            winCondition = true;
+                                            touched = false;
+                                        }
+                                        else
+                                        {
+                                            maybeWin = false;
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    playerMap[missilePosition[1], missilePosition[0]] = "M";
+                                    Console.Clear();
+                                    Interface.DrawGame(hitMap, playerMap);
+                                }
+
                             }
                         }
 
@@ -193,7 +202,7 @@ namespace Client
                         Console.Clear();
                         Console.WriteLine("Voulez-vous recommencer la partie ? \n Appuyer sur R pour recommencer.");
                         keyPress = Console.ReadKey();
-                        if(keyPress.Key == ConsoleKey.R) 
+                        if (keyPress.Key == ConsoleKey.R)
                         {
                             winCondition = false;
                             Connection.SendMessage(sender, "RESTART");
@@ -226,7 +235,7 @@ namespace Client
             longueur = 0;
             hauteur = 0;
             bool valid = false;
-            
+
             while (!valid)
             {
                 // Affiche les instructions et demande la taille
