@@ -92,11 +92,11 @@
         public static void DrawBlockWithColor(string c)
         {
             //gives out a console color for wathever char it gets, might make this a switch or an enum in the future idk
-            if (c == "-") Console.BackgroundColor = ConsoleColor.DarkBlue;
-            if (c == "B") Console.BackgroundColor = ConsoleColor.DarkGray;
-            if (c == "M") Console.BackgroundColor = ConsoleColor.Gray;
-            if (c == "H") Console.BackgroundColor = ConsoleColor.Green;
-            if (c == "S") Console.BackgroundColor = ConsoleColor.Red;
+            if (c == "-") Console.BackgroundColor = Themer.GetColor(0);
+            if (c == "B") Console.BackgroundColor = Themer.GetColor(1);
+            if (c == "M") Console.BackgroundColor = Themer.GetColor(2);
+            if (c == "H") Console.BackgroundColor = Themer.GetColor(3);
+            if (c == "S") Console.BackgroundColor = Themer.GetColor(4);
 
             Console.Write("  ");
             Console.ResetColor();

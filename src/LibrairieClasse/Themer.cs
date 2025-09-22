@@ -1,5 +1,8 @@
-﻿using System;
+﻿using CsvHelper;
+using System;
 using System.Collections.Generic;
+using System.Formats.Asn1;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,74 +11,119 @@ namespace LibrairieClasse
 {
     public static class Themer
     {
-        public static ConsoleColor[] Theme = new ConsoleColor[5];
+        public static int[] Theme = new int[5];
+        private static ConsoleColor[] Colors = (ConsoleColor[])ConsoleColor.GetValues(typeof(ConsoleColor));
+        private static List<ConsoleColor> ColorList = new List<ConsoleColor>() {
+        ConsoleColor.Red,
+        ConsoleColor.DarkBlue,
+        ConsoleColor.Green,
+        ConsoleColor.DarkYellow,
+        ConsoleColor.DarkGray,
+        ConsoleColor.Gray,
+        ConsoleColor.White,
+        ConsoleColor.Cyan};
         public static bool InitializeTheme()
         {
             // Check if file exists and deserializes it
-            if (File.Exists("theme.csv")) return true;
+            if (File.Exists("theme.csv"))
+            {
+                using (var reader = new StreamReader("theme.csv"))
+                using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
+                {
+                    Theme = csv.GetRecords<int>().ToArray();
+                }
+            }
             else AskForTheme();
             return true;
         }
 
         private static void AskForTheme()
         {
-            // Theme de base 
-            #region theme de base
-            //Console.ForegroundColor = ConsoleColor.Gray;
-            Console.BackgroundColor = ConsoleColor.Black;
+            // Demande de couleur pour chaque élément
+            int choice = 0;
+            while (choice >= ColorList.Count() || choice == 0)
+            {
+                Console.Clear();
+                ShowColors();
+                ResetStyle();
+                Console.Write("\n\nChoix du board: ");
+                choice = Interface.AskForNumber();
+            }
+            Theme[0] = Colors.ToList().IndexOf(ColorList[choice - 1]);
+            ColorList.Remove(ColorList[choice - 1]);
+            choice = 0;
+            while (choice >= ColorList.Count() || choice == 0)
+            {
+                Console.Clear();
+                ShowColors();
+                ResetStyle();
+                Console.Write("\n\nChoix du bateau: ");
+                choice = Interface.AskForNumber();
+            }
+            Theme[1] = Colors.ToList().IndexOf(ColorList[choice - 1]);
+            ColorList.Remove(ColorList[choice - 1]);
+            choice = 0;
+            while (choice >= ColorList.Count() || choice == 0)
+            {
+                Console.Clear();
+                ShowColors();
+                ResetStyle();
+                Console.Write("\n\nChoix d'un coup maqué: ");
+                choice = Interface.AskForNumber();
+            }
+            Theme[2] = Colors.ToList().IndexOf(ColorList[choice - 1]);
+            ColorList.Remove(ColorList[choice - 1]);
+            choice = 0;
+            while (choice >= ColorList.Count() || choice == 0)
+            {
+                Console.Clear();
+                ShowColors();
+                ResetStyle();
+                Console.Write("\n\nTouché sur bateau ennemi: ");
+                choice = Interface.AskForNumber();
+            }
+            Theme[3] = Colors.ToList().IndexOf(ColorList[choice - 1]);
+            ColorList.Remove(ColorList[choice - 1]);
+            choice = 0;
+            while (choice >= ColorList.Count() || choice == 0)
+            {
+                Console.Clear();
+                ShowColors();
+                ResetStyle();
+                Console.Write("\n\nTouché sur votre bateau: ");
+                choice = Interface.AskForNumber();
+            }
+            Theme[4] = Colors.ToList().IndexOf(ColorList[choice - 1]);
+            ColorList.Remove(ColorList[choice - 1]);
+            choice = 0;
 
-            Console.WriteLine("Theme de base:");
+            using (var writer = new StreamWriter("theme.csv"))
+            using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
+            {
+                csv.WriteRecords(Theme);
+            }
+        }
+
+        public static ConsoleColor GetColor(int i)
+        {
+            return Colors[Theme[i]];
+        }
+
+        private static void ShowColors()
+        {
             Console.ForegroundColor = ConsoleColor.Black;
-
-            Console.BackgroundColor = ConsoleColor.White;
-            Console.Write("Maquette\t\n");
-
-            Console.BackgroundColor = ConsoleColor.DarkYellow;
-            Console.Write("Bateau\t\n");
-
-            Console.BackgroundColor = ConsoleColor.Green;
-            Console.Write("Touché bateau Ennemi\t\n");
-
-            Console.BackgroundColor = ConsoleColor.Red;
-            Console.Write("Touché bateau joueur\t\n");
-
-            Console.BackgroundColor = ConsoleColor.Gray;
-            Console.Write("Manqué\t\n\n");
-
-            #endregion theme de base
-
-            #region theme maritime
-            // Theme maritime
-            //Console.ForegroundColor = ConsoleColor.Gray;
+            foreach (ConsoleColor color in ColorList)
+            {
+                Console.BackgroundColor = color;
+                Console.WriteLine(ColorList.IndexOf(color) + 1);
+            }
             Console.BackgroundColor = ConsoleColor.Black;
-            Console.WriteLine("Theme maritime:");
-            Console.ForegroundColor = ConsoleColor.Black;
+        }
 
-            Console.BackgroundColor = ConsoleColor.Blue;
-            Console.Write("Maquette\t\n");
-
-            Console.BackgroundColor = ConsoleColor.DarkGray;
-            Console.Write("Bateau\t\n");
-
-            Console.BackgroundColor = ConsoleColor.Green;
-            Console.Write("Touché bateau Ennemi\t\n"); 
-
-            Console.BackgroundColor = ConsoleColor.Red;
-            Console.Write("Touché bateau joueur\t\n");
-
-            Console.BackgroundColor = ConsoleColor.Gray;
-            Console.Write("Manqué\t\n\n");
-
-            #endregion theme maritime
-            Console.ReadKey();
-
+        public static void ResetStyle()
+        {
+            Console.ForegroundColor = ConsoleColor.Gray;
             Console.BackgroundColor = ConsoleColor.Black;
-
-
-            Console.ForegroundColor = ConsoleColor.Black;
-            Console.BackgroundColor = ConsoleColor.White;
-            Console.Write("Choix 1");
-            //Console.BackgroundColor = ConsoleColor.
-        }   
+        }
     }
 }

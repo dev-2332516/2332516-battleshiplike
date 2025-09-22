@@ -7,11 +7,11 @@ namespace Client
         static void Main(string[] args)
         {
             // Reset la console au vide 
-            Console.ForegroundColor = ConsoleColor.Gray;
-            Console.BackgroundColor = ConsoleColor.Black;
+            Themer.ResetStyle();
             Console.Clear();
-            //Themer.InitializeTheme();
-            //ClientConnection.StartClient();
+            Themer.InitializeTheme();
+            Console.Clear();
+            ClientConnection.StartClient();
             //int longueur, hauteur;
             //bool valid = false;
             //while (!valid)
@@ -36,14 +36,14 @@ namespace Client
             //    Interface.Longueur = longueur;
             //    Interface.Hauteur = hauteur;
             //}
-            while (true)
-            {
-                Interface.Longueur = 6;
-                Interface.Hauteur = 5;
-                Console.Clear();
-                Interface.SelectGrid(2, 2);
-                Console.ReadLine();
-            }
+            //while (true)
+            //{
+            //    Interface.Longueur = 6;
+            //    Interface.Hauteur = 5;
+            //    Console.Clear();
+            //    Interface.SelectGrid(2, 2);
+            //    Console.ReadLine();
+            //}
         }
     }
 

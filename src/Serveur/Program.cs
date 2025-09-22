@@ -6,10 +6,10 @@ namespace Serveur
     {
         static void Main(string[] args)
         {
-            Console.ForegroundColor = ConsoleColor.Gray;
-            Console.BackgroundColor = ConsoleColor.Black;
+            Themer.ResetStyle();
             Console.Clear();
             Themer.InitializeTheme();
+            Console.Clear();
             ServerConnection.StartListening();
         }
     }
