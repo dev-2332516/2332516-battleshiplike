@@ -108,11 +108,13 @@ namespace LibrairieClasse
 
         private static void ShowColors()
         {
-            Console.ForegroundColor = ConsoleColor.Black;
             foreach (ConsoleColor color in ColorList)
             {
+                Console.ForegroundColor = ConsoleColor.Gray;
+                Console.BackgroundColor = ConsoleColor.Black;
+                Console.Write((ColorList.IndexOf(color) + 1) + ": ");
                 Console.BackgroundColor = color;
-                Console.WriteLine(ColorList.IndexOf(color) + 1);
+                Console.WriteLine("  ");
             }
             Console.BackgroundColor = ConsoleColor.Black;
         }
